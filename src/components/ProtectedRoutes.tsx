@@ -1,6 +1,7 @@
+import PermissionDenied from '@/pages/PermissionDenied';
 import { User } from '@/types/user';
 import { PropsWithChildren } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from './AuthProvider';
 
 type ProtectedRouteProps = PropsWithChildren & {
@@ -10,15 +11,12 @@ type ProtectedRouteProps = PropsWithChildren & {
 export default function ProtectedRoute({ allowedRoles }: ProtectedRouteProps) {
   const { currentUser } = useAuth();
 
-  if (currentUser === undefined) {
-    return <div>Loading...</div>;
+  if (currentUser === undefined || currentUser === null) {
+    return <Navigate to="/signin" replace />;
   }
 
-  if (
-    currentUser === null ||
-    (allowedRoles && !allowedRoles.includes(currentUser.role))
-  ) {
-    return <div>Permission denied</div>;
+  if (allowedRoles && !allowedRoles.includes(currentUser.role)) {
+    return <PermissionDenied />;
   }
 
   return <Outlet />;

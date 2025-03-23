@@ -1,19 +1,26 @@
 import { useAuth } from '@/components/AuthProvider';
-import { Link } from 'react-router-dom';
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 function SignIn() {
-  const { authToken, handleLogin } = useAuth();
+  const { currentUser, handleLogin } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (currentUser) {
+      if (currentUser?.role === 'admin') {
+        navigate('/admin-only', { replace: true });
+      } else if (currentUser?.role === 'editor') {
+        navigate('/', { replace: true });
+      }
+    }
+  }, [currentUser, navigate]);
+
   return (
     <>
       <div className="alert alert-info" role="alert">
-        <h4 className="alert-heading">Sign In!</h4>
-        <p>
-          Aww yeah, you successfully read this important alert message. This
-          example text is going to run a bit longer so that you can see how
-          spacing within an alert works with this kind of content.
-        </p>
-        <Link to="/">HomePage</Link>
-        <p>AuthToken - {authToken}</p>
+        <h4 className="alert-heading">Sign In</h4>
+        <p>You've been logged out. See you next time!</p>
         <hr />
         <button onClick={handleLogin} className="btn btn-dark">
           Login

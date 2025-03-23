@@ -22,24 +22,6 @@ export default function AuthProvider({ children }: AuthProviderProps) {
   const [authToken, setAuthToken] = useState<string | null>();
   const [currentUser, setCurrentUser] = useState<User | null>();
 
-  // useEffect(() => {
-  //   async function fetchUser() {
-  //     try {
-  //       const response = await getUser();
-
-  //       const { authToken, user } = response[1];
-
-  //       setAuthToken(authToken);
-  //       setCurrentUser(user);
-  //     } catch {
-  //       setAuthToken(null);
-  //       setCurrentUser(null);
-  //     }
-  //   }
-
-  //   fetchUser();
-  // }, []);
-
   async function handleLogin() {
     try {
       const response = await login();

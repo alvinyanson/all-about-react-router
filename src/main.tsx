@@ -3,15 +3,16 @@ import { createRoot } from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import AuthProvider from './components/AuthProvider.tsx';
 import ProtectedRoute from './components/ProtectedRoutes.tsx';
-import HomePage from './pages/HomePage.tsx';
 import Profile from './pages/Profile.tsx';
 import SignIn from './pages/SignIn.tsx';
+import HomePage from './pages/Homepage.tsx';
+import AdminOnly from './pages/AdminOnly.tsx';
 
 const router = createBrowserRouter([
   {
     // Protected routes group
     path: '/',
-    element: <ProtectedRoute allowedRoles={['admin', 'viewer']} />,
+    element: <ProtectedRoute allowedRoles={['editor']} />,
     children: [
       {
         index: true, // Renders HomePage at "/"
@@ -20,21 +21,23 @@ const router = createBrowserRouter([
       {
         path: 'profile/:id',
         element: <Profile />,
-      }
+      },
+    ],
+  },
+  {
+    path: '/admin-only',
+    element: <ProtectedRoute allowedRoles={['admin']} />,
+    children: [
+      {
+        index: true,
+        element: <AdminOnly />,
+      },
     ],
   },
   {
     path: '/signin',
     element: <SignIn />,
   },
-  // {
-  //   path: '/protected',
-  //   element: (
-  //     <ProtectedRoute allowedRoles={['admin', 'viewer']}>
-  //       <div>Protected content</div>
-  //     </ProtectedRoute>
-  //   ),
-  // },
 ]);
 
 createRoot(document.getElementById('root')!).render(
@@ -42,7 +45,6 @@ createRoot(document.getElementById('root')!).render(
     <div className="container">
       <div className="row">
         <div className="col-12 p-5">
-          {/* for demo purposes we can input here 'isSignedIn' but we won't! */}
           <AuthProvider>
             <RouterProvider router={router} />
           </AuthProvider>
