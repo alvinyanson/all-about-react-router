@@ -2,28 +2,39 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import AuthProvider from './components/AuthProvider.tsx';
-import ProtectedRoute from './components/ProtectedRoute.tsx';
-import './index.css';
-import HomePage from './pages/Homepage.tsx';
-import SignInPage from './pages/SignInPage.tsx';
+import ProtectedRoute from './components/ProtectedRoutes.tsx';
+import HomePage from './pages/HomePage.tsx';
+import Profile from './pages/Profile.tsx';
+import SignIn from './pages/SignIn.tsx';
 
 const router = createBrowserRouter([
   {
+    // Protected routes group
     path: '/',
-    element: (
-      <ProtectedRoute>
-        <HomePage />
-      </ProtectedRoute>
-    )
+    element: <ProtectedRoute allowedRoles={['admin', 'viewer']} />,
+    children: [
+      {
+        index: true, // Renders HomePage at "/"
+        element: <HomePage />,
+      },
+      {
+        path: 'profile/:id',
+        element: <Profile />,
+      }
+    ],
   },
   {
     path: '/signin',
-    element: <SignInPage />,
+    element: <SignIn />,
   },
-  {
-    path: "*",
-    element: <>⚠️ PAGE NOT FOUND!!!</>
-  }
+  // {
+  //   path: '/protected',
+  //   element: (
+  //     <ProtectedRoute allowedRoles={['admin', 'viewer']}>
+  //       <div>Protected content</div>
+  //     </ProtectedRoute>
+  //   ),
+  // },
 ]);
 
 createRoot(document.getElementById('root')!).render(

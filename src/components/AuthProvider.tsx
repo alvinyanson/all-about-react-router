@@ -1,47 +1,84 @@
-import { createContext, useContext, useState } from 'react';
-import { AuthContextType, AuthProviderProps, User } from '../types/User';
+import { login } from '@/api/auth';
+import { User } from '@/types/user';
+import {
+  createContext,
+  PropsWithChildren,
+  useContext,
+  useState
+} from 'react';
 
-const AuthContext = createContext<AuthContextType | null>(null);
+type AuthContext = {
+  authToken?: string | null;
+  currentUser?: User | null;
+  handleLogin: () => Promise<void>;
+  handleLogout: () => Promise<void>;
+};
+
+const AuthContext = createContext<AuthContext | undefined>(undefined);
+
+type AuthProviderProps = PropsWithChildren;
 
 export default function AuthProvider({ children }: AuthProviderProps) {
-  // ⚠️ STEP 1: LOAD BACKEND HERE TO GET THE CURRENT LOGGED IN USER
-  // ⚠️ WE COULD USE USE EFFECT HERE FOR BACKEND API CALL
-  const currentUser = JSON.parse(
-    localStorage.getItem('isSignedIn') || 'null'
-  ) as User | null;
+  const [authToken, setAuthToken] = useState<string | null>();
+  const [currentUser, setCurrentUser] = useState<User | null>();
 
-  // ⚠️ STEP 2: SET CURRENT USER VALUE IN FRONTEND
-  const [user, setUser] = useState<User | null>(
-    currentUser ? currentUser : null
-  );
+  // useEffect(() => {
+  //   async function fetchUser() {
+  //     try {
+  //       const response = await getUser();
 
-  const handleLogout = () => {
-    setUser(null);
-    localStorage.removeItem('isSignedIn');
-  };
+  //       const { authToken, user } = response[1];
 
-  const handleLogin = () => {
-    const loggedInUser = { id: Math.floor(Math.random() * 100) + 1 };
+  //       setAuthToken(authToken);
+  //       setCurrentUser(user);
+  //     } catch {
+  //       setAuthToken(null);
+  //       setCurrentUser(null);
+  //     }
+  //   }
 
-    setUser(loggedInUser);
-    localStorage.setItem('isSignedIn', JSON.stringify(loggedInUser));
-  };
+  //   fetchUser();
+  // }, []);
+
+  async function handleLogin() {
+    try {
+      const response = await login();
+
+      const { authToken, user } = response[1];
+
+      setAuthToken(authToken);
+      setCurrentUser(user);
+    } catch {
+      setAuthToken(null);
+      setCurrentUser(null);
+    }
+  }
+
+  async function handleLogout() {
+    setAuthToken(null);
+    setCurrentUser(null);
+  }
 
   return (
     <AuthContext.Provider
-      value={{ user, logout: handleLogout, login: handleLogin }}
+      value={{
+        authToken,
+        currentUser,
+        handleLogin,
+        handleLogout,
+      }}
     >
       {children}
     </AuthContext.Provider>
   );
 }
 
-export const useAuth = () => {
+export function useAuth() {
   const context = useContext(AuthContext);
 
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
+  if (context === undefined) {
+    throw new Error('useAuth must be used inside of a AuthProvider');
   }
 
   return context;
-};
+}
