@@ -14,12 +14,16 @@ const router = createBrowserRouter([
       <ProtectedRoute>
         <HomePage />
       </ProtectedRoute>
-    ),
+    )
   },
   {
     path: '/signin',
     element: <SignInPage />,
   },
+  {
+    path: "*",
+    element: <>⚠️ PAGE NOT FOUND!!!</>
+  }
 ]);
 
 createRoot(document.getElementById('root')!).render(
